@@ -1,0 +1,30 @@
+# Fly.io deployment config — alternative to render.yaml.
+# Usage: `fly launch --copy-config --name your-app-name` from backend/, then
+# `fly volumes create netpulse_data --size 1` and `fly deploy`.
+app = "netpulse-backend"
+primary_region = "jnb"  # Johannesburg — closest Fly region to East Africa
+
+[build]
+
+[env]
+  DATABASE_URL = "sqlite:////data/netpulse.db"
+  DEMO_MODE = "true"
+  TELEMETRY_INTERVAL_SECONDS = "5"
+  AFRICASTALKING_SENDER_ID = "NetPulse"
+
+[[mounts]]
+  source = "netpulse_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[http_service.checks]]
+  path = "/api/health"
+  interval = "30s"
+  timeout = "5s"
+  grace_period = "10s"
