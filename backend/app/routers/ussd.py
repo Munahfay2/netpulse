@@ -17,7 +17,7 @@ from .. import models
 from ..database import get_db
 from ..services import africastalking_service as at
 
-router = APIRouter(prefix="/api/ussd", tags=["ussd"])
+router = APIRouter(tags=["ussd"])
 
 ISSUE_TYPES = {"1": "No Internet", "2": "Slow Internet", "3": "Intermittent Connection", "4": "Other"}
 
@@ -59,7 +59,8 @@ def _active_incident_for_customer(db: Session, customer: models.Customer):
     return link.incident if link else None
 
 
-@router.post("", response_class=PlainTextResponse)
+@router.post("/api/ussd", response_class=PlainTextResponse)
+@router.post("/ussd", response_class=PlainTextResponse)
 def ussd_webhook(
     sessionId: str = Form(...),
     phoneNumber: str = Form(""),

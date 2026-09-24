@@ -6,12 +6,16 @@ function newSessionId() {
   return `sim-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+const LIVE_USSD_CODE = "*789*900600#";
+const LIVE_NETWORK_CODE = "99999";
+const LIVE_TEST_PHONE = "+254757030065";
+
 export default function UssdSimulator() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customerId, setCustomerId] = useState<string>("");
   const [sessionId, setSessionId] = useState(newSessionId());
   const [path, setPath] = useState<string[]>([]);
-  const [screen, setScreen] = useState("Dial *384*NETPULSE# to begin.");
+  const [screen, setScreen] = useState(`Dial ${LIVE_USSD_CODE} to begin.`);
   const [ended, setEnded] = useState(true);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,7 +31,14 @@ export default function UssdSimulator() {
     setLoading(true);
     try {
       const text = nextPath.join("*");
-      const res = await api.ussd({ sessionId, phoneNumber: "254700000000", text, customer_id: customerId });
+      const res = await api.ussd({
+        sessionId,
+        phoneNumber: LIVE_TEST_PHONE,
+        serviceCode: LIVE_USSD_CODE,
+        networkCode: LIVE_NETWORK_CODE,
+        text,
+        customer_id: customerId,
+      });
       const isEnd = res.startsWith("END");
       setScreen(res.replace(/^CON |^END /, ""));
       setEnded(isEnd);
@@ -55,7 +66,7 @@ export default function UssdSimulator() {
   function hangUp() {
     setEnded(true);
     setPath([]);
-    setScreen("Dial *384*NETPULSE# to begin.");
+    setScreen(`Dial ${LIVE_USSD_CODE} to begin.`);
   }
 
   return (
@@ -63,7 +74,7 @@ export default function UssdSimulator() {
       <div>
         <h1 className="text-lg font-semibold">USSD Simulator</h1>
         <p className="text-text-muted text-sm">
-          Try the customer self-service flow exactly as it runs on a feature phone — no telecom SIM required.
+          Test the live Africa's Talking callback payload locally before dialing from a real SIM.
         </p>
       </div>
 
@@ -92,7 +103,7 @@ export default function UssdSimulator() {
                   onClick={dial}
                   className="flex-1 bg-pulse text-[#04231f] rounded-md py-2 text-sm font-semibold"
                 >
-                  Dial *384*NETPULSE#
+                  Dial {LIVE_USSD_CODE}
                 </button>
               ) : (
                 <>
@@ -113,10 +124,10 @@ export default function UssdSimulator() {
         </div>
 
         <div className="bg-surface border border-border rounded-lg p-5 flex-1 w-full">
-          <h2 className="text-sm font-medium mb-3">Simulated Subscriber</h2>
+          <h2 className="text-sm font-medium mb-3">Live Callback Test</h2>
           <p className="text-xs text-text-muted mb-3">
-            Choose which customer's account this session belongs to — in production the phone number
-            from the real USSD request resolves this automatically.
+            This sends the live service code, network code, phone number, and session fields to the same
+            webhook used by Africa's Talking. The selected customer keeps the demo data deterministic.
           </p>
           <select
             value={customerId}

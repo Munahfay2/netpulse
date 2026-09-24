@@ -65,7 +65,14 @@ export const api = {
 
   networkOverview: () => request<LocationSummary[]>("/network/overview"),
 
-  ussd: (payload: { sessionId: string; phoneNumber: string; text: string; customer_id?: string }) =>
+  ussd: (payload: {
+    sessionId: string;
+    phoneNumber: string;
+    serviceCode: string;
+    networkCode: string;
+    text: string;
+    customer_id?: string;
+  }) =>
     fetch(`${BASE}/ussd`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
